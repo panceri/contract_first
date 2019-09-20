@@ -1,0 +1,252 @@
+openapi: "3.0.1"
+info:
+  description: API Responsável por manipular dados de clientes. 
+  contact: 
+    name: Squad XPTO
+    url: http://www.example.com/suport
+    email: suport@example.com.br
+  version: 1.0.0 #semver versioning
+  title: Clientes
+  license:
+    name: Internal
+    url: http://www.licence.com.br
+paths:
+  /clientes:
+    get:
+      summary: Lista todos os clientes
+      operationId: listarClientes
+      tags:
+        - Clientes
+      parameters:
+        - in: query
+          name: nome
+          schema:
+            type: string
+          description: Filtra clientes pelo nome
+          style: form
+          explode: true
+          example: John Connor
+      responses:
+        '200':
+          description: Array de Clientes
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Clientes"
+        '401':
+          description: Não autorizado
+        '400':
+          description: Erro inesperado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Criar um cliente
+      operationId: criarCliente
+      tags:
+        - Clientes
+      requestBody:
+        description: Cliente que será adicionado
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NovoCliente'
+      responses:
+        '201':
+          description: Cliente criado
+        '401':
+          description: Não autorizado
+        '400':
+          description: Erro inesperado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /clientes/{clienteId}:
+    get:
+      summary: Informação sobre um cliente específico
+      operationId: visualizarClientPorId
+      tags:
+        - Clientes
+      parameters:
+        - name: clienteId
+          in: path
+          required: true
+          description: Id do cliente solicitado
+          schema:
+            type: integer
+          example: 10
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cliente"
+              example:
+                idCliente: 9427d23b-d0d6-49fd-ab5c-567292f1d9af
+                nome: John
+                sobrenome: Connor
+                idade: 13
+                dataCriado: 2019-08-01T12:20:37.909Z
+                dataAtualizado: 2019-08-01T12:20:37.909Z
+        '401':
+          description: Não autorizado
+        '400':
+          description: Erro inesperado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: Atualiza o cliente
+      operationId: atualizaClientePorId
+      tags:
+        - Clientes
+      parameters:
+        - name: clienteId
+          in: path
+          required: true
+          description: Id do cliente solicitado
+          schema:
+            type: integer
+          example: 10
+      requestBody:
+        description: Cliente que será atualizado
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NovoCliente'
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cliente"
+        '401':
+          description: Não autorizado
+        '400':
+          description: Erro inesperado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    patch:
+      summary: Atualiza atributos específicos do cliente
+      operationId: atualizaAtributosClientePorId
+      tags:
+        - Clientes
+      parameters:
+        - name: clienteId
+          in: path
+          required: true
+          description: Id do cliente solicitado
+          schema:
+            type: integer
+          example: 10
+      requestBody:
+        description: Atributos do cliente que serão atualizados
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NovoCliente'      
+      responses:
+        '204': 
+          description: Atributo(s) atualizado(s) com sucesso, sem retorno de dados.
+        '401':
+          description: Não autorizado
+        '400':
+          description: Erro inesperado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete: 
+      summary: Deleta o recurso do servidor
+      operationId: deletarClientePorId
+      tags:
+        - Clientes
+      parameters:
+        - name: clienteId
+          in: path
+          required: true
+          description: Id do cliente solicitado
+          schema:
+            type: integer
+          example: 10
+      responses:
+        '204':
+          description: Cliente excluído
+        '401':
+          description: Não autorizado
+        '400':
+          description: Erro inesperado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Cliente:
+      allOf:
+      - $ref: '#/components/schemas/NovoCliente'
+      - required:
+        - idCliente
+        - nome
+        - sobrenome
+        - idade
+        - dataCriado
+        - dataAtualizado
+      properties:
+        idCliente:
+          type: integer
+          format: int64
+        dataCriado:
+          type: string
+          format: date-time
+        dataAtualizado:
+          type: string
+          format: date-time
+    NovoCliente:
+      required: 
+        - nome
+        - sobrenome
+        - idade
+      properties:
+        nome:
+          type: string
+        sobrenome:
+          type: string
+        idade:
+          type: integer
+      example:
+        nome: Sarah
+        sobrenome: Connor
+        idade: 35
+    Clientes:
+      properties:
+        clientes:
+          type: array
+          items:
+            $ref: "#/components/schemas/Cliente"
+          example:
+              idCliente: 9427d23b-d0d6-49fd-ab5c-567292f1d9af
+              nome: John
+              sobrenome: Connor
+              idade: 13
+              dataCriado: 2019-08-01T12:20:37.909Z
+              dataAtualizado: 2019-08-01T12:20:37.909Z
+    Error:
+      required:
+        - erro
+        - descricao
+      properties:
+        erro:
+          type: string
+        descricao:
+          type: string
