@@ -1,0 +1,126 @@
+openapi: "3.0.1"
+info:
+  description: API Responsável por validar a política de exclusão
+  x-api-id: 5b47df8c-f8b6-4070-8d07-6ee2fcb28422
+  x-grupo: unidade-negocio-interno
+  x-contexto: credito
+  contact: 
+    name: Squad Analytics
+    url: http://www.paranabanco.com.br
+    email: carlosess@jmalucelliti.com.br
+  version: 1.0.0 #semver versioning
+  title: Politicas
+servers:
+- url: https://{environment}.paranabanco.com.br/{version}
+  x-backend: xxx
+paths:
+  /politicas/taxa-especial:
+    get:
+      summary: Obtem a taxa de crédito especial caso a taxa fornecida anteriormente não atender. O serviço consulta as bases X e Y para dizer se a taxa fornecida/sugerida pode ser aplicada
+      operationId: obterTaxaEspecial
+      tags:
+        - Taxa
+        - politica
+      parameters:
+        - in: query
+          name: taxa
+          schema:
+            type: string
+          description: Filtra clientes pelo nome
+          style: form
+          explode: true
+          example: John Connor
+      responses:
+        '200':
+          description: Array de Clientes
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Clientes"
+        '401':
+          description: Não autorizado
+        '400':
+          description: Erro inesperado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Secret:
+      properties:
+        secret:
+          type: string
+      example: 
+        secret: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+    Login:
+      required:
+       - cpf
+       - senha
+      properties:
+        cpf:
+          type: integer
+          format: int64
+        senha:
+          type: string
+      example:
+        cpf: 12345678911
+        senha: illbeback
+    Cliente:
+      allOf:
+      - $ref: '#/components/schemas/NovoCliente'
+      - required:
+        - idCliente
+        - nome
+        - sobrenome
+        - idade
+        - dataCriado
+        - dataAtualizado
+      properties:
+        idCliente:
+          type: integer
+          format: int64
+        dataCriado:
+          type: string
+          format: date-time
+        dataAtualizado:
+          type: string
+          format: date-time
+    NovoCliente:
+      required: 
+        - nome
+        - sobrenome
+        - idade
+      properties:
+        nome:
+          type: string
+        sobrenome:
+          type: string
+        idade:
+          type: integer
+      example:
+        nome: Sarah
+        sobrenome: Connor
+        idade: 35
+    Clientes:
+      properties:
+        clientes:
+          type: array
+          items:
+            $ref: "#/components/schemas/Cliente"
+          example:
+              idCliente: 9427d23b-d0d6-49fd-ab5c-567292f1d9af
+              nome: John
+              sobrenome: Connor
+              idade: 13
+              dataCriado: 2019-08-01T12:20:37.909Z
+              dataAtualizado: 2019-08-01T12:20:37.909Z
+    Error:
+      required:
+        - erro
+        - descricao
+      properties:
+        erro:
+          type: string
+        descricao:
+          type: string
